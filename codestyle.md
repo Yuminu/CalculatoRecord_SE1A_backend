@@ -1,49 +1,58 @@
-本代码规范参考自：PEP 8 -- Style Guide for Python Code（https://peps.python.org/pep-0008/）
+This code style is based on: PEP 8 -- Style Guide for Python Code (https://peps.python.org/pep-0008/)
 
-# 后端代码规范（Python / Flask）
+# Backend Code Style (Python / Flask)
 
-本仓库的 Python 代码遵循 [PEP 8](https://peps.python.org/pep-0008/) 官方风格指南，
-并结合 Flask 项目实践做如下约定。所有提交的代码必须满足这些规则。
+The Python code in this repository follows the official
+[PEP 8](https://peps.python.org/pep-0008/) style guide, combined with the
+Flask practices below. All committed code must satisfy these rules.
 
-## 1. 命名规范
+## 1. Naming
 
-- 变量名、函数名、模块名：`snake_case`（如 `validate_expression`）。
-- 类名：`PascalCase`（如 `Calculation`、`CalculatorError`）。
-- 常量：全大写 `UPPER_SNAKE_CASE`（如 `MAX_HISTORY_RECORDS`）。
-- 私有函数 / 变量：以单下划线开头（如 `_check_operators`）。
+- Variable, function and module names: `snake_case`
+  (e.g. `validate_expression`).
+- Class names: `PascalCase` (e.g. `Calculation`, `CalculatorError`).
+- Constants: `UPPER_SNAKE_CASE` (e.g. `MAX_HISTORY_RECORDS`).
+- Private functions / variables: leading single underscore
+  (e.g. `_check_operators`).
 
-## 2. 格式
+## 2. Formatting
 
-- 每行不超过 79 个字符。
-- 使用 4 个空格缩进，禁止使用 Tab。
-- 顶层定义之间空两行，类内方法之间空一行。
-- 二元运算符两侧各留一个空格。
-- 文件末尾保留一个空行。
+- No line longer than 79 characters.
+- Use 4 spaces for indentation; tabs are forbidden.
+- Two blank lines between top-level definitions, one blank line between
+  methods inside a class.
+- One space on each side of binary operators.
+- Keep a single trailing newline at the end of the file.
 
-## 3. 注释与文档字符串
+## 3. Comments and Docstrings
 
-- 每个模块顶部必须有模块说明注释（module docstring）。
-- 每个公开函数、类和公共方法必须有 docstring，说明用途、
-  参数（Args）与返回值（Returns）；可能抛错时说明 Raises。
-- 注释使用英文，保持简洁，解释"为什么"而非"做了什么"。
+- Every module must start with a module docstring.
+- Every public function, class and public method must have a docstring
+  describing its purpose, arguments (Args) and return value (Returns);
+  document Raises when it may raise.
+- Comments are written in English, kept concise, and explain "why"
+  rather than "what".
 
-## 4. 导入
+## 4. Imports
 
-- 导入语句按 **标准库 → 第三方库 → 本地模块** 三组排列，
-  组间空一行。
-- 每组内部按字母顺序排列。
-- 禁止使用通配符导入（`from x import *`）。
+- Group imports as **standard library -> third party -> local modules**,
+  with one blank line between groups.
+- Sort alphabetically within each group.
+- Wildcard imports (`from x import *`) are forbidden.
 
-## 5. 安全与错误处理
+## 5. Security and Error Handling
 
-- **禁止**使用 `eval()`、`exec()`、`__import__()` 或任何等效的
-  任意代码执行方法处理用户输入；表达式解析使用 `ast` 安全求值。
-- 所有 API 路由必须使用 `try-except` 捕获异常，记录日志后返回
-  标准 JSON 错误响应，禁止将 traceback 直接返回给前端。
-- 使用标准 HTTP 状态码表达结果（200 / 204 / 400 / 404 / 500）。
+- It is **forbidden** to use `eval()`, `exec()`, `__import__()` or any
+  equivalent arbitrary-code-execution method on user input; expressions
+  are evaluated safely with `ast`.
+- Every API route must use `try-except`, log the error and return a
+  standard JSON error response. Never return a traceback to the front
+  end.
+- Use proper HTTP status codes (200 / 204 / 400 / 404 / 500).
 
-## 6. 数据库
+## 6. Database
 
-- 使用 Flask-SQLAlchemy 的会话（`db.session`）进行增删改查，
-  修改后显式 `commit()`。
-- 模型方法返回可 JSON 序列化的字典，字段名与接口契约保持一致。
+- Use the Flask-SQLAlchemy session (`db.session`) for CRUD and call
+  `commit()` explicitly after modifications.
+- Model helper methods return JSON-serializable dictionaries whose field
+  names match the API contract.
