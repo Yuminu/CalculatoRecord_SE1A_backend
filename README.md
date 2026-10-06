@@ -136,7 +136,7 @@ studentID_calculator_backend/
 │   │   └── history.py
 │   ├── routes/                   # Routes
 │   │   ├── calculate.py          # POST /api/calculate
-│   │   ├── history.py            # GET/DELETE /api/history
+│   │   ├── history.py            # GET/PATCH/DELETE /api/history
 │   │   └── health.py             # GET /api/health
 │   ├── services/                 # Business logic
 │   │   ├── calculator.py         # Core calculation (safe parsing)
@@ -160,7 +160,8 @@ studentID_calculator_backend/
 | Method | Path | Description | Success status |
 |--------|------|-------------|----------------|
 | POST | `/api/calculate` | Calculate and store an expression | 200 |
-| GET | `/api/history` | Query history (`limit`/`offset`) | 200 |
+| GET | `/api/history` | Query history (`limit`/`offset`/`favorite`) | 200 |
+| PATCH | `/api/history/{id}/favorite` | Toggle the favorite flag | 200 |
 | DELETE | `/api/history/{id}` | Delete one record | 204 |
 | DELETE | `/api/history` | Clear all history | 204 |
 | GET | `/api/health` | Health check | 200 |
