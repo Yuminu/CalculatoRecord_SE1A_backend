@@ -37,7 +37,15 @@ def create_app(config=None):
     _ensure_data_directory(app)
 
     db.init_app(app)
-    CORS(app, resources={r"/api/*": {"origins": app.config["CORS_ORIGINS"]}})
+    CORS(
+        app,
+        resources={
+            r"/api/*": {
+                "origins": app.config["CORS_ORIGINS"],
+                "methods": ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+            }
+        },
+    )
 
     _configure_logging(app)
     _register_blueprints(app)

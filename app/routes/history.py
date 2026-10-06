@@ -28,9 +28,10 @@ def list_history():
     except ValueError as error:
         return jsonify({"success": False, "message": str(error)}), 400
 
+    favorite = _parse_bool(request.args.get("favorite"))
     try:
         records, total = history_service.get_history(
-            limit=limit, offset=offset
+            limit=limit, offset=offset, favorite=favorite
         )
         return jsonify(
             {
@@ -44,6 +45,50 @@ def list_history():
         return jsonify(
             {"success": False, "message": "Internal server error"}
         ), 500
+
+
+@history_bp.route(
+    "/api/history/<int:record_id>/favorite", methods=["PATCH"]
+)
+def toggle_favorite(record_id):
+    """Toggle the favorite flag of a record.
+
+    Args:
+        record_id: The integer id taken from the URL path.
+
+    Returns:
+        Response: HTTP 200 with ``{success, is_favorite, message}`` on
+            success, or HTTP 404 with a JSON body when the record is
+            missing.
+    """
+    try:
+        record = history_service.toggle_favorite(record_id)
+    except Exception:  # noqa: BLE001 - defensive API boundary
+        logger.exception("Failed to toggle favorite")
+        return jsonify(
+            {"success": False, "message": "Internal server error"}
+        ), 500
+
+    if record is None:
+        return jsonify(
+            {
+                "success": False,
+                "message": "This record has been deleted",
+            }
+        ), 404
+
+    message = (
+        "Added to favorites"
+        if record.is_favorite
+        else "Removed from favorites"
+    )
+    return jsonify(
+        {
+            "success": True,
+            "is_favorite": bool(record.is_favorite),
+            "message": message,
+        }
+    ), 200
 
 
 @history_bp.route("/api/history/<int:record_id>", methods=["DELETE"])
@@ -113,3 +158,18 @@ def _parse_int(raw_value, default, minimum):
     except (TypeError, ValueError) as error:
         raise ValueError("Query parameter must be an integer") from error
     return max(value, minimum)
+
+
+def _parse_bool(raw_value):
+    """Interpret an optional query-string boolean.
+
+    Args:
+        raw_value: The raw string value from the query string (or None).
+
+    Returns:
+        bool: ``True`` for "true"/"1"/"yes" (case-insensitive), otherwise
+            ``False``.
+    """
+    if raw_value is None:
+        return False
+    return raw_value.strip().lower() in ("true", "1", "yes")

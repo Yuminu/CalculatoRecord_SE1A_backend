@@ -44,18 +44,23 @@ def _enforce_history_limit():
     logger.info("Trimmed %s oldest history record(s)", extra)
 
 
-def get_history(limit=20, offset=0):
+def get_history(limit=20, offset=0, favorite=None):
     """Return a page of history records and the total count.
 
     Args:
         limit: Maximum number of records to return (default 20).
         offset: Number of records to skip (default 0).
+        favorite: When ``True`` only favorite records are returned; when
+            ``None`` or ``False`` no favorite filter is applied.
 
     Returns:
         tuple: ``(records, total)`` where ``records`` is a list of
             :class:`Calculation` ordered from newest to oldest.
     """
-    query = Calculation.query.order_by(Calculation.id.desc())
+    query = Calculation.query
+    if favorite:
+        query = query.filter(Calculation.is_favorite.is_(True))
+    query = query.order_by(Calculation.id.desc())
     total = query.count()
     records = query.offset(offset).limit(limit).all()
     return records, total
@@ -71,6 +76,24 @@ def get_record(record_id):
         Calculation or None: The matching record, or ``None`` if missing.
     """
     return db.session.get(Calculation, record_id)
+
+
+def toggle_favorite(record_id):
+    """Flip the favorite flag of a record.
+
+    Args:
+        record_id: The primary key of the record.
+
+    Returns:
+        Calculation or None: The updated record, or ``None`` if the
+            record does not exist.
+    """
+    record = get_record(record_id)
+    if record is None:
+        return None
+    record.is_favorite = not bool(record.is_favorite)
+    db.session.commit()
+    return record
 
 
 def delete_history(record_id):
